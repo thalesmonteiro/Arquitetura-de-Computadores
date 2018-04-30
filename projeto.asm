@@ -3,16 +3,18 @@ SYS_WRITE equ 4
 STDIN     equ 0
 STDOUT    equ 1
 
+%include        'funcao.asm'
+
 section .data ;Usado para declarar e inicializar dados e constantes
     MsgUsuario db 'Digite um número: '
     lenMsgUsuario equ $-MsgUsuario
-    displayMsg db 'O número digitado foi: ', 0h
+    displayMsg db 'O número apos a soma: ', 0h
     lenDisplayMsg equ $-displayMsg
 
-section .bss ;usado para declarar variaveis
-    num resb 7
+section .bss                ;usado para declarar variaveis
+    num resb 255
    
-section .text ; usado para armazenar o codigo
+section .text               ;usado para armazenar o codigo
     global _start
 
 _start:
@@ -24,33 +26,32 @@ _start:
     int 80h
 
     ;ler e guarda o numero inserido
-
     mov eax, SYS_READ
     mov ebx, STDOUT
     mov ecx, num
-    mov edx, 5
+    mov edx, 10
     int 80h
 
-    ;Exibe a mensagem DisplayMSG
+    ;Exibe a mensagem DisplayMSG na tela
     mov eax, SYS_WRITE
     mov ebx, STDOUT
     mov ecx, displayMsg
     mov edx, lenDisplayMsg
     int 80h
+    
+    ;Convertendo de ASCII para Inteiro
+    mov eax, num
+    call atoi
+    add eax, 10;    
+    mov [num], eax          ;resultado convertido em Inteiro
 
-    mov bl, [num] ; Atribuindo o valor da variável segundo ao registrador BL
-    sub bl, byte '0' ; Convertendo valor de ASCII em decimal para fins de operação
-    add [num], bl
-    ;Exibe o numero digitado
-    mov eax, SYS_WRITE
-    mov ebx, STDOUT
-    mov ecx, num
-    mov edx, 5
-    int 80h
+    
+    call itoa               ;Convertendo de Inteiro pra ASC11 e Exibindo na tela
+    mov[num], eax
 
     ;Encerra codigo
-
     mov eax, 1
     mov ebx, 0
     int 80h
+
 
